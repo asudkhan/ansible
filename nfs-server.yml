@@ -1,0 +1,36 @@
+---
+- hosts: rana
+tasks:
+  - name: Disabling Selinux
+    shell: "setenforce 0"
+
+  - name: stopping and disabling iptables
+    service:
+      name: iptables
+      state: stooped
+      enabled: no
+
+  - name: INSTALLIG NFS-UTILS
+    yum:
+     name: nfs-utils
+     state: present
+  
+  - name: STARTING AND ENABLING SERVICE
+    service:
+      name: nfs
+      state: started
+      enabled: yes
+
+  - name: CREATING NFS SHARED DIRECTORY
+    file:
+      path: /data
+      state: directory
+
+  - name: CREATING SHARE
+    lineinfile:
+      path: /etc/exports
+      line: '/data *(rw,no_root_squash,sync)'
+
+  - name: EXPORTING SHARES
+    shell: "exportfs -avr; showmount -e vm1"
+
