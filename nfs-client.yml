@@ -1,0 +1,29 @@
+---
+- name: THIS IS NFS CLIENT
+  hosts: vm3
+  tasks:
+    - name: DISABLING SELINUX
+      shell: "setenforce 0"
+
+    - name: TURNING OFF IPtables
+      service:
+        name: iptables
+        state: stopped
+        enabled: no
+
+    - name: INSTALLING CLIENT RPMS
+      yum:
+        name: nfs-utils
+        state: present
+
+    - name: MOUNTING NFS SHARE
+      mount:
+        path: /tmp
+        src: 192.168.1.23:/data
+        fstype: nfs
+        state: mounted
+
+    - name: MAKING MOUNT PRESISTANT
+      lineinfile:
+        path: /etc/fstab
+        line: '192.168.1.23:/data  /tmp  nfs defaults 0 0' 
