@@ -1,13 +1,14 @@
 ---
-- hosts: rana
-tasks:
+- name: NFS SERVER
+  hosts: client
+  tasks:
   - name: Disabling Selinux
     shell: "setenforce 0"
 
   - name: stopping and disabling iptables
     service:
       name: iptables
-      state: stooped
+      state: stopped
       enabled: no
 
   - name: INSTALLIG NFS-UTILS
