@@ -1,0 +1,30 @@
+---
+- name: PACKAGE AND SERVICE DEPLOYMENT
+  hosts: client
+  vars:
+    web_pkg: httpd
+    ntpd_pkg: ntp
+    ftp_pkg: vsftpd
+    nfs_pkg: nfs-utils
+    web_service: httpd
+    ntp_service: ntpd
+    ftp_serivce: vsftpd
+    nfs_service: nfs
+  tasks:
+    - name: INSTALL PACKAGES
+      yum:
+        name:
+          - "{{ web_pkg }}"
+          - "{{ ntpd_pkg }}"
+          - "{{ ftp_pkg }}"
+          - "{{ nfs_pkg }}"
+        state: present
+    - name: START & ENABLED SERVICES
+      service: 
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+          - "{{ web_service }}"
+          - "{{ ntp_service }}"
+          - "{{ nfs_service }}"

@@ -1,0 +1,36 @@
+--- 
+- name: Create a backup copy of specific file
+  hosts: rana
+  vars:
+    filename: /tmp/newfile
+    create_backup_file: /tmp/newfile2
+
+  tasks:
+    - name: creating a empty file
+      file:
+        path: "{{ create_backup_file }}"
+        remote_src: yes
+        state: touch
+    - name: comparing two new files
+      stat:
+        path: "{{ create_backup_file }}"
+        get_cheksum: yes
+        remote_src: yes
+
+      register: saved_val1
+  
+    - name: secound checksum
+      stat:
+        path: /etc/resolv.conf
+        remote_src: yes
+        get_checksum: yes
+
+      register: saved_val2
+
+    - name: copy /etc/resolve to /tmp/newfile if it is differ
+      copy:
+        src: /etc/reslov.conf
+        dest: "{{ create_backup_file }}"
+        remote_src: yes
+
+      when: saved_val1.stat.checksum != saved_val2.stat.checksum  
