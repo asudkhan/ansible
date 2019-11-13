@@ -1,0 +1,111 @@
+---
+- name: CONFIGURING PXE SERVER
+  hosts: vm1
+  vars:
+    - rpm1: dhcp
+    - rpm2: tftp-server
+    - rpm3: vsftpd
+    - rpm4: syslinux
+    - ser1: dhcpd
+    - ser2: xinetd
+    - ser3: vsftpd
+  tasks: 
+
+    - name: INSTALLING PACKAGES
+      yum: 
+        name:
+          - "{{ rpm1 }}"
+          - "{{ rpm2 }}"
+          - "{{ rpm3 }}"
+          - "{{ rpm4 }}"
+        state: present
+
+    - name: SETTING UP VSFTPD SERVER
+      copy: 
+        src: /mnt/
+        dest: /var/ftp/pub
+    
+    - name: STARTING/ENABLED VSFTPD
+      service: 
+        name: "{{ ser3 }}"
+        state: started
+        enabbled: yes
+
+    - name: SETTING TFTP-SERVER
+      copy:
+        src: /mnt/isolinux/
+        remote_src: yes
+        dest: /var/lib/tftpboot
+
+    - name: CREATE PXELINUX.CFG
+      file:
+        path: /var/lib/tftpboot/pxelinux.cfg
+        state: directory
+
+    - name: RENAME ISOLINUX.CFG TO DEFAULT IN PXELINUX.CFG
+      copy:
+        src: /var/lib/tftpboot/isolinux.cfg
+        remote_src: yes
+        dest: /var/lib/tftpboot/pxelinux.cfg/default
+
+    - name: COPY PXELINUX.0 FROM SYSLINUX TO TFTPBOOT
+      copy:
+        src: /usr/share/syslinux/pxelinux.0
+        remote_src: yes
+        dest: /var/lib/tftpboot
+
+
+    - name: DISABLE XINETD
+      replace:
+        path: /etc/xinetd.d/tftp
+        regexp: "yes"
+        replace: "no"
+
+    - name:  STARTING/ENABLING XINETD
+      service: 
+        name: "{{ ser2 }}"
+        state: started
+        enabled: yes 
+   
+   
+    - name: CONFIG DHCP 
+      blockinfile: 
+        path: /etc/dhcp/Dhcpd.conf
+        block: |
+          default-lea se-time 600;
+          max-lease-time 7200;
+          allow booting;
+          allow bootp;
+          authoritative;
+
+          subnet 192.168.1.0 netmask 255.255.255.0 {
+          range 192.168.1.30 192.168.1.40;
+          next-server 192.168.1.23;
+          filename "pxelinux.0";
+          }
+        backup: yes
+
+    - name: STARTING/ENABLING DHCPD
+      service: 
+        name: "{{ ser1 }}"
+        state: started
+        enabled: yes  
+   
+    - name: SELINUX OFF
+      shell: "setenforce 0"
+
+    - name: STOP IP TABLES
+      service: 
+        name: iptables
+        state: stopped
+        enabled: no
+
+    - name: RESTART ALL SERVICES AGAIN
+      service: 
+        name:
+          - "{{ ser1 }}"
+          - "{{ ser2 }}"
+          - "{{ ser3 }}"
+        state: restarted
+        enabled: yes
+   
