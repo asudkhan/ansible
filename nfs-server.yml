@@ -15,7 +15,11 @@
     yum:
      name: nfs-utils
      state: present
-  
+  - name: Starting RPCBIND
+    service:
+      name: rpcbind
+      state: started
+
   - name: STARTING AND ENABLING SERVICE
     service:
       name: nfs
