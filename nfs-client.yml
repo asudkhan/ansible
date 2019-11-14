@@ -18,12 +18,12 @@
 
     - name: MOUNTING NFS SHARE
       mount:
-        path: /tmp
-        src: 192.168.1.23:/data
+        path: /mnt
+        src: 192.168.1.22:/data
         fstype: nfs
         state: mounted
 
     - name: MAKING MOUNT PRESISTANT
       lineinfile:
         path: /etc/fstab
-        line: '192.168.1.23:/data  /tmp  nfs defaults 0 0' 
+        line: '192.168.1.22:/data  /mnt  nfs defaults 0 0' 

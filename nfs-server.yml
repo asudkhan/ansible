@@ -1,6 +1,6 @@
 ---
 - name: NFS SERVER
-  hosts: client
+  hosts: vm2
   tasks:
   - name: Disabling Selinux
     shell: "setenforce 0"
