@@ -1,0 +1,19 @@
+--- 
+- name: creating and copying
+  hosts: prac
+  tasks:
+    - name: creating dir
+      file:
+        name: /tmp/asud/
+        state: directory
+
+    - name: creting file
+      file:
+        name: /root/test123
+        state: touch
+
+
+    - name: copying
+      copy:
+        src: /root/test123
+        dest: /tmp/asud/

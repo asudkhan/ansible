@@ -1,6 +1,6 @@
 --- 
 - name: Create a backup copy of specific file
-  hosts: rana
+  hosts: client
   vars:
     filename: /tmp/newfile
     create_backup_file: /tmp/newfile2
